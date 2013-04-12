@@ -23,6 +23,8 @@
 const Clutter = imports.gi.Clutter;
 const Champlain = imports.gi.Champlain;
 const Geocode = imports.gi.GeocodeGlib;
+const Gtk = imports.gi.Gtk;
+const GtkClutter = imports.gi.GtkClutter;
 
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
@@ -104,12 +106,22 @@ const MapLocation = new Lang.Class({
                                       margin_right: 12  });
         bubble.add_child(box);
 
-        let text = new Clutter.Text({ text: this.description });
+        let text = new Clutter.Text({ text: this.description,
+                                      x_expand: true });
         text.set_color(new Clutter.Color({ red: 255,
                                            blue: 255,
                                            green: 255,
                                            alpha: 255 }));
         box.add_child(text);
+
+        let button = new Gtk.Button ({ label: "Route to this location" });
+        button.connect ("clicked", Lang.bind (this,
+            function () {
+                 this.emit('route-request');
+            }));
+        button.show();
+        let buttonActor = new GtkClutter.Actor({ contents: button });
+        box.add_child (buttonActor);
 
         layer.add_marker (bubble);
         log("Added marker at " + this.latitude + ", " + this.longitude);

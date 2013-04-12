@@ -24,6 +24,7 @@ const Clutter = imports.gi.Clutter;
 const Cogl = imports.gi.Cogl;
 const Gdk = imports.gi.Gdk;
 const GdkPixbuf = imports.gi.GdkPixbuf;
+const GLib = imports.gi.GLib;
 const Gtk = imports.gi.Gtk;
 const GtkChamplain = imports.gi.GtkChamplain;
 const Champlain = imports.gi.Champlain;
@@ -33,12 +34,14 @@ const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 const Signals = imports.signals;
 
+const Application = imports.application;
 const Sidebar = imports.sidebar;
 const Utils = imports.utils;
 const Path = imports.path;
 const MapLocation = imports.mapLocation;
 const UserLocation = imports.userLocation;
 const Geoclue = imports.geoclue;
+const osrm = imports.osrm;
 const _ = imports.gettext.gettext;
 
 const MapType = {
@@ -70,6 +73,13 @@ const MapView = new Lang.Class({
         this._markerLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
         this.view.add_layer(this._markerLayer);
 
+        this._routeLayer = new Champlain.PathLayer();
+        this._routeLayer.set_stroke_width(2.0);
+        this.view.add_layer(this._routeLayer);
+
+        this._instructionsLayer = new Champlain.MarkerLayer();
+        this.view.add_layer(this._instructionsLayer);
+
         this._userLocationLayer = new Champlain.MarkerLayer();
         this._userLocationLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
         this.view.add_layer(this._userLocationLayer);
@@ -78,6 +88,45 @@ const MapView = new Lang.Class({
         this.setMapType(MapType.STREET);
 
         this._showUserLocation();
+    },
+
+    _route_request: function(toLocation) {
+        let fromLocation = this._userLocation;
+        let router = new osrm.Router();
+
+        this._routeLayer.remove_all();
+        this._instructionsLayer.remove_all();
+
+        router.addViaPoint(fromLocation.latitude, fromLocation.longitude);
+        router.addViaPoint(toLocation.latitude, toLocation.longitude);
+
+        router.calculateRoute(Lang.bind(this, function(route) {
+            if (!route) {
+                log("No route found");
+                /* TODO: ? */
+                return;
+            }
+            log("Got a " +route.length+ "m route with " + route.points.length + " nodes and " +
+                route.instructions.length + " turn instructions.");
+
+            for (let i = 0; i < route.points.length; i++) {
+                let coord = new Champlain.Coordinate();
+                coord.set_location(route.points[i]._lat,
+                                   route.points[i]._lon);
+                this._routeLayer.add_node(coord);
+            }
+
+            for (let i = 0; i < route.instructions.length; i++) {
+                let coord = new Champlain.Point();
+                coord.set_size(8.0);
+                coord.set_location(route.instructions[i]._lat,
+                                   route.instructions[i]._lon);
+                this._instructionsLayer.add_marker(coord);
+            }
+            this._routeLayer.set_visible(true);
+
+            this.ensureVisible([fromLocation, toLocation]);
+        }));
     },
 
     setMapType: function(mapType) {
@@ -101,6 +150,8 @@ const MapView = new Lang.Class({
                                 return;
 
                             let mapLocation = new MapLocation.MapLocation(location, this);
+                            mapLocation.connect("route-request",
+                                                Lang.bind(this, this._route_request));
                             mapLocations.push(mapLocation);
                         }));
                     this._showLocations(mapLocations);
