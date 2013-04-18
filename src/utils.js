@@ -117,7 +117,7 @@ function getDescriptionForAccuracy(accuracy) {
     }
 }
 
-function CreateActorFromImageFile(path) {
+function loadImageFromFile(path) {
     try {
         let pixbuf = GdkPixbuf.Pixbuf.new_from_file(path);
         let image = new Clutter.Image();
@@ -126,12 +126,7 @@ function CreateActorFromImageFile(path) {
                        pixbuf.get_width(),
                        pixbuf.get_height(),
                        pixbuf.get_rowstride());
-
-        let actor = new Clutter.Actor();
-        actor.set_content(image);
-        actor.set_size(pixbuf.get_width(), pixbuf.get_height());
-
-        return actor;
+        return image;
     } catch(e) {
         log("Failed to load image: " + e.message);
         return null;

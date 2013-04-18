@@ -84,10 +84,34 @@ const MapLocation = new Lang.Class({
     },
 
     show: function(layer) {
-        let marker = new Champlain.Label();
-        marker.set_text(this.description);
-        marker.set_location(this.latitude, this.longitude);
-        layer.add_marker(marker);
+        let image = Utils.loadImageFromFile(Path.ICONS_DIR + "/bubble.svg");
+        let bubble = new Champlain.CustomMarker({ content: image });
+
+        bubble.set_location(this.latitude, this.longitude);
+        bubble.connect('notify::width', Lang.bind(this,
+            function() {
+                bubble.set_translation(-(Math.floor(bubble.get_width() / 2)),
+                                       -bubble.get_height(),
+                                       0);
+            }));
+
+        let layout = new Clutter.BoxLayout({ orientation: Clutter.Orientation.VERTICAL,
+                                             spacing: 6 });
+        let box = new Clutter.Actor({ layout_manager: layout,
+                                      margin_top: 6,
+                                      margin_bottom: 18,
+                                      margin_left: 12,
+                                      margin_right: 12  });
+        bubble.add_child(box);
+
+        let text = new Clutter.Text({ text: this.description });
+        text.set_color(new Clutter.Color({ red: 255,
+                                           blue: 255,
+                                           green: 255,
+                                           alpha: 255 }));
+        box.add_child(text);
+
+        layer.add_marker (bubble);
         log("Added marker at " + this.latitude + ", " + this.longitude);
     },
 

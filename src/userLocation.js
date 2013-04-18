@@ -48,14 +48,19 @@ const UserLocation = new Lang.Class({
                                                      -this._locationMarker.get_height(),
                                                      0);
             }));
-        let pin_actor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/pin.svg");
-        if (pin_actor == null)
-            return;
-        let bubbleActor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/bubble.svg");
-        if (bubbleActor == null)
-            return;
+
+        let image = Utils.loadImageFromFile(Path.ICONS_DIR + "/pin.svg");
+        let pin_actor = new Clutter.Actor({ content: image });
+        [has_size, w, h] = image.get_preferred_size(image);
+        pin_actor.set_size (w, h);
+
+        image = Utils.loadImageFromFile(Path.ICONS_DIR + "/bubble.svg");
+        let bubbleActor = new Clutter.Actor({ content: image });
+        [has_size, w, h] = image.get_preferred_size(image);
+        bubbleActor.set_size (w, h);
         bubbleActor.set_x_expand(true);
         bubbleActor.set_y_expand(true);
+
         let text = _("%s\nPosition Accuracy: %s").format (this.description,
                                                           Utils.getDescriptionForAccuracy(this.accuracy));
         let textActor = new Clutter.Text({ text: text });
