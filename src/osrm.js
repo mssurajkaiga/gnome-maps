@@ -18,6 +18,9 @@
  * Author: Jussi Kukkonen <jku@goto.fi>
  */
 
+// OSRM Routing API documented at:
+// https://github.com/DennisOSRM/Project-OSRM/wiki/Server-api
+
 const GLib = imports.gi.GLib;
 const Soup = imports.gi.Soup;
 const Lang = imports.lang;
