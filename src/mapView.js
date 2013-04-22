@@ -94,6 +94,10 @@ const MapView = new Lang.Class({
         let fromLocation = this._userLocation;
         let router = new osrm.Router();
 
+        // modify layers while not visible to avoid repaints
+        this._routeLayer.visible = false;
+        this._instructionsLayer.visible = false;
+
         this._routeLayer.remove_all();
         this._instructionsLayer.remove_all();
 
@@ -109,6 +113,7 @@ const MapView = new Lang.Class({
             log("Got a " +route.length+ "m route with " + route.points.length + " nodes and " +
                 route.instructions.length + " turn instructions.");
 
+
             for (let i = 0; i < route.points.length; i++) {
                 let coord = new Champlain.Coordinate();
                 coord.set_location(route.points[i]._lat,
@@ -123,8 +128,9 @@ const MapView = new Lang.Class({
                                    route.instructions[i]._lon);
                 this._instructionsLayer.add_marker(coord);
             }
-            this._routeLayer.set_visible(true);
 
+            this._routeLayer.visible = true;
+            this._instructionsLayer.visible = true;
             this.ensureVisible([fromLocation, toLocation]);
         }));
     },
