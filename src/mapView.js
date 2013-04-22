@@ -106,8 +106,13 @@ const MapView = new Lang.Class({
 
         router.calculateRoute(Lang.bind(this, function(route) {
             if (!route) {
-                log("No route found");
-                /* TODO: ? */
+                log("Routing not succesful");
+                // TODO ?
+                return;
+            }
+            if (route.status != osrm.Status.SUCCESSFUL) {
+                log("Routing not succesful, status " + route.status);
+                // TODO ?
                 return;
             }
             log("Got a " +route.length+ "m route with " + route.points.length + " nodes and " +

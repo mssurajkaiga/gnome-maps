@@ -45,6 +45,22 @@ const TurnInstruction = {
     "17":   "Leave against allowed direction" // ?
 }
 
+const Status = {
+    SUCCESSFUL: 0,
+    UNKNOWN_SERVER_ERROR: 1,
+    INVALID_PARAMETER: 2,
+    PARAMETER_OUT_OF_RANGE: 3,
+    REQUIRED_PARAMETER_MISSING: 4,
+    SERVICE_UNAVAILABLE: 5,
+    ROUTE_IS_BLOCKED: 202,
+    DB_CORRUPTED: 205,
+    DB_IS_NOT_OPEN: 206,
+    NO_ROUTE: 207,
+    INVALID_START_POINT: 208,
+    INVALID_END_POINT: 209,
+    START_AND_END_POINTS_ARE_EQUAL: 210,
+}
+
 const RoutePoint = new Lang.Class({
     Name: 'RoutePoint',
 
@@ -86,8 +102,8 @@ const Route = new Lang.Class({
             return;
         }
 
-        if (osrm_json.status != "0") {
-            log("Route has status " + osrm_json.status)
+        this.status = osrm_json.status;
+        if (this.status != 0) {
             return;
         }
 
