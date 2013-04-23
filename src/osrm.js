@@ -24,48 +24,56 @@
 const GLib = imports.gi.GLib;
 const Soup = imports.gi.Soup;
 const Lang = imports.lang;
+const _ = imports.gettext.gettext;
 
+/* Translators: Directions will be used in TurnInstruction string,
+ * e.g. "Head {DIR}" */
 const Direction = {
-    "N": "north",
-    "NE": "northeast",
-    "E": "east",
-    "SE": "southeast",
-    "S": "south",
-    "SW": "southwest",
-    "W": "west",
-    "NW": "northwest",
+    "N": _("north"),
+    "NE": _("northeast"),
+    "E": _("east"),
+    "SE": _("southeast"),
+    "S": _("south"),
+    "SW": _("southwest"),
+    "W": _("west"),
+    "NW": _("northwest"),
 }
 
-// https://github.com/DennisOSRM/Project-OSRM/blob/master/DataStructures/TurnInstructions.h
-// We'll need strings without street names as well
+/* https://github.com/DennisOSRM/Project-OSRM/blob/master/DataStructures/TurnInstructions.h
+ * First item in the array is the instruction string when WAYNAME is
+ * not known, second is the string when it is. The latter can be null
+ * if the two are same. */
+/* Translators: Turn-by-turn instructions. '{WAYNAME}' will be replaced
+ * with the street or road name, and {DIR} will be replaced with a
+ * direction (See above). */
 const TurnInstruction = {
-    "0":    "", // No instruction
-    "1":    "Continue on {WAYNAME}",
-    "2":    "Turn slightly right onto {WAYNAME}",
-    "3":    "Turn right onto {WAYNAME}",
-    "4":    "Turn sharp right onto {WAYNAME}",
-    "5":    "Make a U-turn on {WAYNAME}",
-    "6":    "Turn sharp left onto {WAYNAME}",
-    "7":    "Turn left onto {WAYNAME}",
-    "8":    "Turn slightly left onto {WAYNAME}",
-    "9":    "You have reached a waypoint",
-    "10":   "Head {DIR} on {WAYNAME}", // start of route
-    "11":   "Enter roundabout",
-    "11-1": "Enter roundabout and leave at first exit",
-    "11-2": "Enter roundabout and leave at second exit",
-    "11-3": "Enter roundabout and leave at third exit",
-    "11-4": "Enter roundabout and leave at fourth exit",
-    "11-5": "Enter roundabout and leave at fifth exit",
-    "11-6": "Enter roundabout and leave at sixth exit",
-    "11-7": "Enter roundabout and leave at seventh exit",
-    "11-8": "Enter roundabout and leave at eighth exit",
-    "11-9": "Enter roundabout and leave at ninth exit",
-    "12":   "Leave roundabout",
-    "13":   "Stay on roundabout",
-    "14":   "Start at end of {WAYNAME}", // ?
-    "15":   "You have reached your destination",
-    "16":   "Enter against allowed direction", // ?
-    "17":   "Leave against allowed direction" // ?
+    "0":    ["", null], // No instruction ?
+    "1":    [_("Continue"), _("Continue on {WAYNAME}")], // A change in wayname
+    "2":    [_("Turn slightly right"), _("Turn slightly right onto {WAYNAME}")],
+    "3":    [_("Turn right"), _("Turn right onto {WAYNAME}")],
+    "4":    [_("Turn sharp right"), _("Turn sharp right onto {WAYNAME}")],
+    "5":    [_("Make a U-turn"), _("Make a U-turn on {WAYNAME}")],
+    "6":    [_("Turn sharp left"), _("Turn sharp left onto {WAYNAME}")],
+    "7":    [_("Turn left"), _("Turn left onto {WAYNAME}")],
+    "8":    [_("Turn slightly left"), _("Turn slightly left onto {WAYNAME}")],
+    "9":    [_("You have reached a waypoint"), null],
+    "10":   [_("Head {DIR}"), _("Head {DIR} on {WAYNAME}")], // start of route
+    "11":   [_("Enter roundabout"), null],
+    "11-1": [_("Enter roundabout and leave at first exit"), null],
+    "11-2": [_("Enter roundabout and leave at second exit"), null],
+    "11-3": [_("Enter roundabout and leave at third exit"), null],
+    "11-4": [_("Enter roundabout and leave at fourth exit"), null],
+    "11-5": [_("Enter roundabout and leave at fifth exit"), null],
+    "11-6": [_("Enter roundabout and leave at sixth exit"), null],
+    "11-7": [_("Enter roundabout and leave at seventh exit"), null],
+    "11-8": [_("Enter roundabout and leave at eighth exit"), null],
+    "11-9": [_("Enter roundabout and leave at ninth exit"), null],
+    "12":   [_("Leave roundabout"), null],
+    "13":   [_("Stay on roundabout"), null],
+    "14":   [_("Start at the end of street"), _("Start at end of {WAYNAME}")], // ?
+    "15":   [_("You have reached your destination"), null],
+    "16":   [_("Enter against allowed direction"), null], // ?
+    "17":   [_("Leave against allowed direction"), null], // ?
 }
 
 const Status = {
@@ -103,11 +111,14 @@ const RoutePoint = new Lang.Class({
     getInstructionString: function() {
         if (!this._turn_instruction)
             return null;
-        let string = TurnInstruction[this._turn_instruction]
 
-        let wayname = this._way_name ? this._way_name : "unnamed street";
-        string = string.replace(/{WAYNAME}/g, wayname);
-
+        let string;
+        if (this._way_name && TurnInstruction[this._turn_instruction][1]) {
+            string = TurnInstruction[this._turn_instruction][1];
+            string = string.replace(/{WAYNAME}/g, this._way_name);
+        } else {
+            string = TurnInstruction[this._turn_instruction][0];
+        }
         string = string.replace(/{DIR}/g, Direction[this._direction]);
 
         return string + " (" + this.length + "m)";

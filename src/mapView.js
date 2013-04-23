@@ -132,6 +132,7 @@ const MapView = new Lang.Class({
                 coord.set_location(route.instructions[i]._lat,
                                    route.instructions[i]._lon);
                 this._instructionsLayer.add_marker(coord);
+                log(" * " + route.instructions[i].getInstructionString());
             }
 
             this._routeLayer.visible = true;
