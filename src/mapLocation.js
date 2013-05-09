@@ -64,7 +64,7 @@ const MapLocation = new Lang.Class({
          * also give user a good idea of where the destination is compared to current
          * location.
          */
-        let locations = new Array();
+        let locations = [];
         locations[0] = new Geocode.Location({ latitude: this._view.get_center_latitude(),
                                               longitude: this._view.get_center_longitude() });
         locations[1] = this;
@@ -94,6 +94,6 @@ const MapLocation = new Lang.Class({
     showNGoTo: function(animate, layer) {
         this.show(layer);
         this.goTo(animate);
-    },
+    }
 });
 Signals.addSignalMethods(MapLocation.prototype);

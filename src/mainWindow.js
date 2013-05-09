@@ -57,12 +57,12 @@ const MainWindow = new Lang.Class({
         this.window.application = app;
 
         Utils.initActions(this.window, [
-            { 
-                properties: { name: 'about' }, 
+            {
+                properties: { name: 'about' },
                 signalHandlers: { activate: this._onAboutActivate }
             }, {
                 properties: {
-                    name: 'map-type-menu', 
+                    name: 'map-type-menu',
                     state: GLib.Variant.new('b', false)
                 },
                 signalHandlers: { activate: this._onMapTypeMenuActivate }
@@ -78,7 +78,7 @@ const MainWindow = new Lang.Class({
 
         // apply the last saved window size and position
         let size = Application.settings.get_value('window-size');
-        if (size.n_children() == 2) {
+        if (size.n_children() === 2) {
             let width = size.get_child_value(0);
             let height = size.get_child_value(1);
 
@@ -87,7 +87,7 @@ const MainWindow = new Lang.Class({
         }
 
         let position = Application.settings.get_value('window-position');
-        if (position.n_children() == 2) {
+        if (position.n_children() === 2) {
             let x = position.get_child_value(0);
             let y = position.get_child_value(1);
 
@@ -164,7 +164,7 @@ const MainWindow = new Lang.Class({
     },
 
     _onConfigureEvent: function(widget, event) {
-        if (this._configureId != 0) {
+        if (this._configureId !== 0) {
             Mainloop.source_remove(this._configureId);
             this._configureId = 0;
         }
@@ -195,7 +195,7 @@ const MainWindow = new Lang.Class({
 
     _quit: function() {
         // remove configure event handler if still there
-        if (this._configureId != 0) {
+        if (this._configureId !== 0) {
             Mainloop.source_remove(this._configureId);
             this._configureId = 0;
         }

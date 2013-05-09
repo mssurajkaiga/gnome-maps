@@ -49,10 +49,10 @@ const UserLocation = new Lang.Class({
                                                      0);
             }));
         let pin_actor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/pin.svg");
-        if (pin_actor == null)
+        if (!pin_actor)
             return;
         let bubbleActor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/bubble.svg");
-        if (bubbleActor == null)
+        if (!bubbleActor)
             return;
         bubbleActor.set_x_expand(true);
         bubbleActor.set_y_expand(true);
@@ -65,13 +65,15 @@ const UserLocation = new Lang.Class({
                                                  blue: 255,
                                                  green: 255,
                                                  alpha: 255 }));
-        let layout = new Clutter.BinLayout();
-        let descriptionActor = new Clutter.Actor({ layout_manager: layout });
+        let descriptionActor = new Clutter.Actor({
+            layout_manager: new Clutter.BinLayout()
+        });
         descriptionActor.add_child(bubbleActor);
         descriptionActor.add_child(textActor);
 
-        let layout = new Clutter.BoxLayout({ vertical: true });
-        let locationActor = new Clutter.Actor({ layout_manager: layout });
+        let locationActor = new Clutter.Actor({
+            layout_manager: new Clutter.BoxLayout({ vertical: true })
+        });
         locationActor.add_child(descriptionActor);
         locationActor.add_child(pin_actor);
 
@@ -81,7 +83,7 @@ const UserLocation = new Lang.Class({
                                            descriptionActor, "visible",
                                            GObject.BindingFlags.SYNC_CREATE);
 
-        if (this.accuracy == 0) {
+        if (this.accuracy === 0) {
             layer.add_marker(this._locationMarker);
             return;
         }
@@ -131,5 +133,5 @@ const UserLocation = new Lang.Class({
             this._accuracyMarker.set_size(size);
             this._accuracyMarker.show();
         }
-    },
+    }
 });

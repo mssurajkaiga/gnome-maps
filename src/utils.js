@@ -58,9 +58,6 @@ function addJSSignalMethods(proto) {
 }
 
 function loadStyleSheet(file) {
-    file = file || Gio.file_new_for_path(GLib.build_filenamev([pkg.pkgdatadir,
-                                                               'application.css']));
-
     let provider = new Gtk.CssProvider();
     provider.load_from_file(file);
     Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),
@@ -91,7 +88,7 @@ function initActions(actionMap, simpleActionEntries, context) {
 
 // accuracy: double value in meters
 function getZoomLevelForAccuracy(accuracy) {
-    if (accuracy == Geocode.LOCATION_ACCURACY_UNKNOWN)
+    if (accuracy === Geocode.LOCATION_ACCURACY_UNKNOWN)
         return 12; // Accuracy is usually city-level when unknown
     else if (accuracy <= Geocode.LOCATION_ACCURACY_STREET)
         return 16;
@@ -106,9 +103,9 @@ function getZoomLevelForAccuracy(accuracy) {
 }
 
 function getDescriptionForAccuracy(accuracy) {
-    if (accuracy == Geocode.LOCATION_ACCURACY_UNKNOWN)
+    if (accuracy === Geocode.LOCATION_ACCURACY_UNKNOWN)
         return "Unknown";
-    else if (accuracy == 0)
+    else if (accuracy === 0)
         return "Exact";
     else {
         let area =  Math.PI * Math.pow(accuracy / 1000, 2);

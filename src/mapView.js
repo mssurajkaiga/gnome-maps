@@ -42,10 +42,10 @@ const Geoclue = imports.geoclue;
 const _ = imports.gettext.gettext;
 
 const MapType = {
-   STREET:  Champlain.MAP_SOURCE_OSM_MAPQUEST,
-   AERIAL: Champlain.MAP_SOURCE_OSM_AERIAL_MAP,
-   CYCLING: Champlain.MAP_SOURCE_OSM_CYCLE_MAP,
-   TRANSIT: Champlain.MAP_SOURCE_OSM_TRANSPORT_MAP
+    STREET:  Champlain.MAP_SOURCE_OSM_MAPQUEST,
+    AERIAL:  Champlain.MAP_SOURCE_OSM_AERIAL_MAP,
+    CYCLING: Champlain.MAP_SOURCE_OSM_CYCLE_MAP,
+    TRANSIT: Champlain.MAP_SOURCE_OSM_TRANSPORT_MAP
 };
 
 const MapView = new Lang.Class({
@@ -86,23 +86,21 @@ const MapView = new Lang.Class({
     },
 
     geocodeSearch: function(string) {
-        let forward = Geocode.Forward.new_for_string(string);
-
-        forward.search_async (null, Lang.bind(this,
-            function(forward, res) {
+        Geocode.Forward
+            .new_for_string(string)
+            .search_async (null, Lang.bind(this, function(forward, res) {
                 try {
                     let places = forward.search_finish(res);
                     log (places.length + " places found");
-                    let mapLocations = new Array();
-                    places.forEach(Lang.bind(this,
-                        function(place) {
-                            let location = place.get_location();
-                            if (location == null)
-                                return;
+                    let mapLocations = [];
+                    places.forEach(Lang.bind(this, function(place) {
+                        let location = place.get_location();
+                        if (!location)
+                            return;
 
-                            let mapLocation = new MapLocation.MapLocation(location, this);
-                            mapLocations.push(mapLocation);
-                        }));
+                        let mapLocation = new MapLocation.MapLocation(location, this);
+                        mapLocations.push(mapLocation);
+                    }));
                     this._showLocations(mapLocations);
                 } catch (e) {
                     log ("Failed to search '" + string + "': " + e.message);
@@ -126,7 +124,7 @@ const MapView = new Lang.Class({
                     max_longitude = location.longitude;
                 if (location.longitude < min_longitude)
                     min_longitude = location.longitude;
-                }));
+            }));
 
         let bbox = new Champlain.BoundingBox();
         bbox.left = min_longitude;
@@ -157,7 +155,7 @@ const MapView = new Lang.Class({
 
         let onLocationChanged = Lang.bind(this,
             function() {
-                if (this._geoclue.location == null)
+                if (!this._geoclue.location)
                     return;
 
                 this._userLocation = new UserLocation.UserLocation(this._geoclue.location, this);
@@ -168,7 +166,7 @@ const MapView = new Lang.Class({
     },
 
     _showLocations: function(locations) {
-        if (locations.length == 0)
+        if (locations.length === 0)
             return;
         this._markerLayer.remove_all();
 
@@ -177,7 +175,7 @@ const MapView = new Lang.Class({
                 location.show(this._markerLayer);
             }));
 
-        if (locations.length == 1)
+        if (locations.length === 1)
             locations[0].goTo(true);
         else
             this.ensureVisible(locations);
