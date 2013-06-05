@@ -36,8 +36,8 @@ const Direction = {
     "S": _("south"),
     "SW": _("southwest"),
     "W": _("west"),
-    "NW": _("northwest"),
-}
+    "NW": _("northwest")
+};
 
 /* https://github.com/DennisOSRM/Project-OSRM/blob/master/DataStructures/TurnInstructions.h
  * First item in the array is the instruction string when WAYNAME is
@@ -48,33 +48,33 @@ const Direction = {
  * direction (See above). */
 const TurnInstruction = {
     "0":    ["", null], // No instruction ?
-    "1":    [_("Continue"), _("Continue on {WAYNAME}")], // A change in wayname
-    "2":    [_("Turn slightly right"), _("Turn slightly right onto {WAYNAME}")],
-    "3":    [_("Turn right"), _("Turn right onto {WAYNAME}")],
-    "4":    [_("Turn sharp right"), _("Turn sharp right onto {WAYNAME}")],
-    "5":    [_("Make a U-turn"), _("Make a U-turn on {WAYNAME}")],
-    "6":    [_("Turn sharp left"), _("Turn sharp left onto {WAYNAME}")],
-    "7":    [_("Turn left"), _("Turn left onto {WAYNAME}")],
-    "8":    [_("Turn slightly left"), _("Turn slightly left onto {WAYNAME}")],
-    "9":    [_("You have reached a waypoint"), null],
-    "10":   [_("Head {DIR}"), _("Head {DIR} on {WAYNAME}")], // start of route
-    "11":   [_("Enter roundabout"), null],
-    "11-1": [_("Enter roundabout and leave at first exit"), null],
-    "11-2": [_("Enter roundabout and leave at second exit"), null],
-    "11-3": [_("Enter roundabout and leave at third exit"), null],
-    "11-4": [_("Enter roundabout and leave at fourth exit"), null],
-    "11-5": [_("Enter roundabout and leave at fifth exit"), null],
-    "11-6": [_("Enter roundabout and leave at sixth exit"), null],
-    "11-7": [_("Enter roundabout and leave at seventh exit"), null],
-    "11-8": [_("Enter roundabout and leave at eighth exit"), null],
-    "11-9": [_("Enter roundabout and leave at ninth exit"), null],
-    "12":   [_("Leave roundabout"), null],
-    "13":   [_("Stay on roundabout"), null],
-    "14":   [_("Start at the end of street"), _("Start at end of {WAYNAME}")], // ?
-    "15":   [_("You have reached your destination"), null],
+    "1":    [_("Continue"), _("Continue on {WAYNAME}")], // A change in wayname
+    "2":    [_("Turn slightly right"), _("Turn slightly right onto {WAYNAME}")],
+    "3":    [_("Turn right"), _("Turn right onto {WAYNAME}")],
+    "4":    [_("Turn sharp right"), _("Turn sharp right onto {WAYNAME}")],
+    "5":    [_("Make a U-turn"), _("Make a U-turn on {WAYNAME}")],
+    "6":    [_("Turn sharp left"), _("Turn sharp left onto {WAYNAME}")],
+    "7":    [_("Turn left"), _("Turn left onto {WAYNAME}")],
+    "8":    [_("Turn slightly left"), _("Turn slightly left onto {WAYNAME}")],
+    "9":    [_("You have reached a waypoint"), null],
+    "10":   [_("Head {DIR}"), _("Head {DIR} on {WAYNAME}")], // start of route
+    "11":   [_("Enter roundabout"), null],
+    "11-1": [_("Enter roundabout and leave at first exit"), null],
+    "11-2": [_("Enter roundabout and leave at second exit"), null],
+    "11-3": [_("Enter roundabout and leave at third exit"), null],
+    "11-4": [_("Enter roundabout and leave at fourth exit"), null],
+    "11-5": [_("Enter roundabout and leave at fifth exit"), null],
+    "11-6": [_("Enter roundabout and leave at sixth exit"), null],
+    "11-7": [_("Enter roundabout and leave at seventh exit"), null],
+    "11-8": [_("Enter roundabout and leave at eighth exit"), null],
+    "11-9": [_("Enter roundabout and leave at ninth exit"), null],
+    "12":   [_("Leave roundabout"), null],
+    "13":   [_("Stay on roundabout"), null],
+    "14":   [_("Start at the end of street"), _("Start at end of {WAYNAME}")], // ?
+    "15":   [_("You have reached your destination"), null],
     "16":   [_("Enter against allowed direction"), null], // ?
-    "17":   [_("Leave against allowed direction"), null], // ?
-}
+    "17":   [_("Leave against allowed direction"), null] // ?
+};
 
 const Status = {
     SUCCESSFUL: 0,
@@ -89,8 +89,8 @@ const Status = {
     NO_ROUTE: 207,
     INVALID_START_POINT: 208,
     INVALID_END_POINT: 209,
-    START_AND_END_POINTS_ARE_EQUAL: 210,
-}
+    START_AND_END_POINTS_ARE_EQUAL: 210
+};
 
 const RoutePoint = new Lang.Class({
     Name: 'RoutePoint',
@@ -100,62 +100,62 @@ const RoutePoint = new Lang.Class({
         this._lon = lon;
     },
 
-    setInstructions: function(turn_instruction, dir, name, length, time) {
-        this._turn_instruction = turn_instruction;
-        this._way_name = name;
+    setInstructions: function(turnInstruction, dir, name, length, time) {
+        this._turnInstruction = turnInstruction;
+        this._wayName = name;
         this._direction = dir;
         this.length = length;
         this._time = time;
     },
 
     getInstructionString: function() {
-        if (!this._turn_instruction)
+        if (!this._turnInstruction)
             return null;
 
         let string;
-        if (this._way_name && TurnInstruction[this._turn_instruction][1]) {
-            string = TurnInstruction[this._turn_instruction][1];
-            string = string.replace(/{WAYNAME}/g, this._way_name);
+        if (this._wayName && TurnInstruction[this._turnInstruction][1]) {
+            string = TurnInstruction[this._turnInstruction][1];
+            string = string.replace(/{WAYNAME}/g, this._wayName);
         } else {
-            string = TurnInstruction[this._turn_instruction][0];
+            string = TurnInstruction[this._turnInstruction][0];
         }
         string = string.replace(/{DIR}/g, Direction[this._direction]);
 
         return string + " (" + this.length + "m)";
-    },
+    }
 });
 
 const Route = new Lang.Class({
     Name: 'Route',
 
-    _init: function(osrm_json) {
-        this.points = []
-        this.instructions = []
-        if (!osrm_json) {
+    _init: function(json) {
+        this.points = [];
+        this.instructions = [];
+        if (!json) {
             log("Route json not valid");
             return;
         }
 
-        this.status = osrm_json.status;
+        this.status = json.status;
         if (this.status != 0) {
             return;
         }
 
-        if (osrm_json.route_summary) {
-            this.length = osrm_json.route_summary.total_distance;
-            this._start_point = osrm_json.route_summary.start_point;
-            this._end_point = osrm_json.route_summary.end_point;
+        if (json.route_summary) {
+            this.length = json.route_summary.total_distance;
+            this._start_point = json.route_summary.start_point;
+            this._end_point = json.route_summary.end_point;
         }
-        [this.points, this.instructions] = this._build_route(osrm_json);
+        [this.points, this.instructions] = this._buildRoute(json);
     },
 
-    _build_route: function(json) {
+    _buildRoute: function(json) {
         let points = this._decodePolyline(json.route_geometry);
-        let instruction_points = this._apply_instructions(points, json.route_instructions);
-        return [points, instruction_points];
+        let instructions = this._applyInstructions(points, json.route_instructions);
+        return [points, instructions];
     },
 
-    _apply_instructions: function(points, instructions) {
+    _applyInstructions: function(points, instructions) {
         if (!points)
             return [];
 
@@ -231,7 +231,7 @@ const Route = new Lang.Class({
             polyline.push(new RoutePoint(lat * 1e-5, lon * 1e-5));
         }
         return polyline;
-    },
+    }
 });
 
 const ViaPoint = new Lang.Class({
@@ -244,15 +244,15 @@ const ViaPoint = new Lang.Class({
     },
     
     toString: function() {
-        let hint = ""
+        let hint = "";
         if (this._hint)
-            hint = "&hint=" + this._hint
-        return "loc=" + this._lat + "," + this._lon + hint
+            hint = "&hint=" + this._hint;
+        return "loc=" + this._lat + "," + this._lon + hint;
     },
 
     setHint: function(hint) {
         this._hint = hint;
-    },
+    }
 });
 
 const Router = new Lang.Class({
@@ -293,11 +293,11 @@ const Router = new Lang.Class({
     _buildURL: function() {
         let points= "";
         for (let i = 0; i < this._viaPoints.length; i++)
-             points += this._viaPoints[i].toString() + "&"
+             points += this._viaPoints[i].toString() + "&";
 
         let checksum = "";
         if (this._checksum)
-            checksum = "checksum=" + this._checksum + "&"
+            checksum = "checksum=" + this._checksum + "&";
 
         return this._server + '/viaroute?' +
                points +
@@ -309,7 +309,7 @@ const Router = new Lang.Class({
 
     calculateRoute: function(callback) {
         if (this._viaPoints.length < 2) {
-            callback(null)
+            callback(null);
             return;
         }
         this._callback = callback;
@@ -327,5 +327,5 @@ const Router = new Lang.Class({
 
     removeViaPoint: function(index) {
         this._viaPoints.splice(index, 1);
-    },
+    }
 });
