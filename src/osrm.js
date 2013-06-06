@@ -92,26 +92,20 @@ const Status = {
     START_AND_END_POINTS_ARE_EQUAL: 210
 };
 
-const RoutePoint = new Lang.Class({
-    Name: 'RoutePoint',
+const Instruction = new Lang.Class({
+    Name: 'Instruction',
 
-    _init: function(lat, lon) {
-        this._lat = lat;
-        this._lon = lon;
+    _init: function(point, data) {
+		this.point = point;
+		
+        this._turnInstruction = data.turnInstruction;
+        this._direction = data.direction;
+        this._length = data.length;
+        this._time = data.time;
+        this._wayName = data.wayName;
     },
 
-    setInstructions: function(turnInstruction, dir, name, length, time) {
-        this._turnInstruction = turnInstruction;
-        this._wayName = name;
-        this._direction = dir;
-        this.length = length;
-        this._time = time;
-    },
-
-    getInstructionString: function() {
-        if (!this._turnInstruction)
-            return null;
-
+    toString: function() {
         let string;
         if (this._wayName && TurnInstruction[this._turnInstruction][1]) {
             string = TurnInstruction[this._turnInstruction][1];
@@ -121,7 +115,7 @@ const RoutePoint = new Lang.Class({
         }
         string = string.replace(/{DIR}/g, Direction[this._direction]);
 
-        return string + " (" + this.length + "m)";
+        return string + " (" + this._length + "m)";
     }
 });
 
@@ -151,16 +145,16 @@ const Route = new Lang.Class({
 
     _buildRoute: function(json) {
         let points = this._decodePolyline(json.route_geometry);
-        let instructions = this._applyInstructions(points, json.route_instructions);
+        let instructions = this._createInstructions(points, json.route_instructions);
         return [points, instructions];
     },
 
-    _applyInstructions: function(points, instructions) {
+    _createInstructions: function(points, instructionJSON) {
         if (!points)
             return [];
 
-        let instruction_points = [];
-        for (let i = 0; i < instructions.length; i++) {
+        let instructions = [];
+        instructionJSON.forEach(function(instruction) {
             // 0: turn instruction, see TurnInstruction
             // 1: way name
             // 2: length (m)
@@ -170,24 +164,26 @@ const Route = new Lang.Class({
             // 6: direction abbreviation
             // 7: azimuth
 
-            let point = points[instructions[i][3]];
+            let point = points[instruction[3]];
             if (!point) {
                 log("Turn instruction for non-existing point " +
-                    instructions[i][3]);
-                continue;
+                    instruction[3]);
+                return;
             }
-            if (!TurnInstruction[instructions[i][0]]) {
-                log("Unknown turn instruction " + instructions[i][0]);
-                continue;
+            if (!TurnInstruction[instruction[0]]) {
+                log("Unknown turn instruction " + instruction[0]);
+                return;
             }
-            point.setInstructions(instructions[i][0],
-                                  instructions[i][6],
-                                  instructions[i][1],
-                                  instructions[i][2],
-                                  instructions[i][4]);
-            instruction_points.push(point);
-        }
-        return instruction_points;
+
+            instructions.push(new Instruction(point, {
+                turnInstruction: instruction[0],
+                wayName: instruction[1],
+                length: instruction[2],
+                time: instruction[4],
+                direction: instruction[6]
+            }));
+        });
+        return instructions;
     },
 
     _decodeValue: function(data, index) {
@@ -228,7 +224,10 @@ const Route = new Lang.Class({
             // first value is absolute, rest are relative to previous value
             lat += latdelta;
             lon += londelta;
-            polyline.push(new RoutePoint(lat * 1e-5, lon * 1e-5));
+            polyline.push({
+				lat: lat * 1e-5,
+				lon: lon * 1e-5
+			});
         }
         return polyline;
     }

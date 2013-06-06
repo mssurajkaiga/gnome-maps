@@ -118,22 +118,21 @@ const MapView = new Lang.Class({
             log("Got a " +route.length+ "m route with " + route.points.length + " nodes and " +
                 route.instructions.length + " turn instructions.");
 
+            route.points.forEach(function(point) {
+                this._routeLayer.add_node(new Champlain.Coordinate({
+                    latitude: point.lat,
+                    longitude: point.lon
+                }));
+            }, this);
 
-            for (let i = 0; i < route.points.length; i++) {
-                let coord = new Champlain.Coordinate();
-                coord.set_location(route.points[i]._lat,
-                                   route.points[i]._lon);
-                this._routeLayer.add_node(coord);
-            }
-
-            for (let i = 0; i < route.instructions.length; i++) {
-                let coord = new Champlain.Point();
-                coord.set_size(8.0);
-                coord.set_location(route.instructions[i]._lat,
-                                   route.instructions[i]._lon);
-                this._instructionsLayer.add_marker(coord);
-                log(" * " + route.instructions[i].getInstructionString());
-            }
+            route.instructions.forEach(function(instruction) {
+                this._instructionsLayer.add_marker(new Champlain.Point({
+                    latitude: instruction.point.lat,
+                    longitude: instruction.point.lon,
+                    size: 8.0
+                }));
+                log(" * " + instruction.toString());
+            }, this);
 
             this._routeLayer.visible = true;
             this._instructionsLayer.visible = true;
