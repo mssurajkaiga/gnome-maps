@@ -38,8 +38,7 @@ const _ = imports.gettext.gettext;
 const Sidebar = new Lang.Class({
     Name: 'Sidebar',
 
-    _init: function(mapView) {
-        this._mapView = mapView;
+    _init: function() {
         this.actor = new Clutter.Actor({ layout_manager: new Clutter.BoxLayout({ spacing: 12 }),
                                          y_expand: true,
                                          x_align: Clutter.ActorAlign.END });

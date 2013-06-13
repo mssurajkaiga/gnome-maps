@@ -65,7 +65,7 @@ const MapView = new Lang.Class({
         this.view.connect('notify::latitude', Lang.bind(this, this._onViewMoved));
         this.view.connect('notify::longitude', Lang.bind(this, this._onViewMoved));
 
-        this._sidebar = new Sidebar.Sidebar(this);
+        this._sidebar = new Sidebar.Sidebar();
         // Don't show sidebar until it has something in it
         //this.view.add_child(this._sidebar.actor);
 
