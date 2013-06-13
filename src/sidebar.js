@@ -44,10 +44,9 @@ const Sidebar = new Lang.Class({
                                          x_align: Clutter.ActorAlign.END });
 
         // create the button
-        let revealButton = new Gd.HeaderSimpleButton({ symbolic_icon_name: 'go-previous-symbolic',
-                                                       valign: Gtk.Align.CENTER });
-        revealButton.get_style_context().add_class('osd');
-        revealButton.show();
+        this._revealButton = new Gd.HeaderSimpleButton({ valign: Gtk.Align.CENTER });
+        this._revealButton.get_style_context().add_class('osd');
+        this._revealButton.connect('clicked', this.toggle.bind(this));
 
         // then the sidebar itself, packed into the revealer
         let grid = new Gtk.Grid({ vexpand: true,
@@ -64,31 +63,41 @@ const Sidebar = new Lang.Class({
                                         width_request: 200 });
         container.get_style_context().add_class('maps-sidebar');
 
-        let revealer = new Gd.Revealer({ child: container,
-                                         reveal_child: false,
-                                         orientation: Gtk.Orientation.VERTICAL });
-        revealer.show_all();
-
-        revealButton.connect('clicked', Lang.bind(this, function() {
-            if (revealer.reveal_child) {
-                revealer.reveal_child = false;
-                revealButton.symbolic_icon_name = 'go-previous-symbolic';
-            } else {
-                revealer.reveal_child = true;
-                revealButton.symbolic_icon_name = 'go-next-symbolic';
-            }
-        }));
-
+        this._revealer = new Gd.Revealer({ child: container,
+                                           orientation: Gtk.Orientation.VERTICAL });
+        this._revealer.show_all();
         // now create actors
-        let buttonActor = new GtkClutter.Actor({ contents: revealButton,
+        let buttonActor = new GtkClutter.Actor({ contents: this._revealButton,
                                                  x_align: Clutter.ActorAlign.END });
         Utils.clearGtkClutterActorBg(buttonActor);
         this.actor.add_child(buttonActor);
 
-        let revealerActor = new GtkClutter.Actor({ contents: revealer,
+        let revealerActor = new GtkClutter.Actor({ contents: this._revealer,
                                                    x_align: Clutter.ActorAlign.END,
                                                    x_expand: true,
                                                    y_expand: true });
         this.actor.add_child(revealerActor);
+        this.conceal();
+    },
+
+    reveal: function() {
+        this._revealer.reveal_child = true;
+        this._revealButton.symbolic_icon_name = 'go-next-symbolic';
+    },
+
+    conceal: function() {
+        this._revealer.reveal_child = false;
+        this._revealButton.symbolic_icon_name = 'go-previous-symbolic';
+    },
+
+    toggle: function() {
+        if(this.isRevealed())
+            this.conceal();
+        else
+            this.reveal();
+    },
+
+    isRevealed: function() {
+        return this._revealer.reveal_child;
     }
 });
