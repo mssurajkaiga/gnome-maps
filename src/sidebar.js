@@ -42,7 +42,8 @@ const Sidebar = new Lang.Class({
         this.actor = new Clutter.Actor({ layout_manager: new Clutter.BoxLayout({ spacing: 12 }),
                                          y_expand: true,
                                          x_align: Clutter.ActorAlign.END });
-
+        this.actor.hide();
+        
         // create the button
         this._revealButton = new Gd.HeaderSimpleButton({ valign: Gtk.Align.CENTER });
         this._revealButton.get_style_context().add_class('osd');

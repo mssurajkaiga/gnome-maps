@@ -66,8 +66,7 @@ const MapView = new Lang.Class({
         this.view.connect('notify::longitude', Lang.bind(this, this._onViewMoved));
 
         this._sidebar = new Sidebar.Sidebar();
-        // Don't show sidebar until it has something in it
-        //this.view.add_child(this._sidebar.actor);
+        this.view.add_child(this._sidebar.actor);
 
         this._markerLayer = new Champlain.MarkerLayer();
         this._markerLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
@@ -90,6 +89,15 @@ const MapView = new Lang.Class({
         this._showUserLocation();
     },
 
+    showSidebar: function() {
+        this._sidebar.reveal();
+        this._sidebar.actor.show();
+    },
+    hideSidebar: function() {
+        this._sidebar.actor.hide();
+        this._sidebar.conceal();
+    },
+    
     _route_request: function(toLocation) {
         let fromLocation = this._userLocation;
         let router = new osrm.Router();
@@ -137,6 +145,7 @@ const MapView = new Lang.Class({
             this._routeLayer.visible = true;
             this._instructionsLayer.visible = true;
             this.ensureVisible([fromLocation, toLocation]);
+            this.showSidebar();
         }));
     },
 
