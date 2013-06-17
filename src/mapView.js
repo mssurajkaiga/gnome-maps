@@ -139,7 +139,7 @@ const MapView = new Lang.Class({
                     longitude: instruction.point.lon,
                     size: 8.0
                 }));
-                log(" * " + instruction.toString());
+                this._sidebar.addInstruction(instruction);
             }, this);
 
             this._routeLayer.visible = true;

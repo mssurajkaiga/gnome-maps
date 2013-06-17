@@ -77,6 +77,15 @@ const Sidebar = new Lang.Class({
         return actor;
     },
 
+    addInstruction: function(instruction) {
+        this._ui.instructionsList.add(new Gtk.ListBoxRow({
+            child: new Gtk.Label({
+                label: instruction.toString()
+            })
+        }));
+        log(" * " + instruction.toString());
+    },
+
     reveal: function() {
         this._ui.revealer.reveal_child = true;
         this._ui.revealButton.symbolic_icon_name = 'go-next-symbolic';
