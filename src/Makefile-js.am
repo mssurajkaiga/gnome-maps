@@ -7,7 +7,8 @@ dist_js_DATA = \
     mapView.js \
     path.js \
     sidebar.js \
-    utils.js \
+	utils.js \
+	control.js \
     userLocation.js \
     geoclue.js
 

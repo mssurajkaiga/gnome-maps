@@ -25,6 +25,7 @@ const Cogl = imports.gi.Cogl;
 const Gdk = imports.gi.Gdk;
 const GdkPixbuf = imports.gi.GdkPixbuf;
 const Gtk = imports.gi.Gtk;
+const GtkClutter = imports.gi.GtkClutter;
 const GtkChamplain = imports.gi.GtkChamplain;
 const Champlain = imports.gi.Champlain;
 const Geocode = imports.gi.GeocodeGlib;
@@ -39,6 +40,7 @@ const Path = imports.path;
 const MapLocation = imports.mapLocation;
 const UserLocation = imports.userLocation;
 const Geoclue = imports.geoclue;
+const Control = imports.control;
 const _ = imports.gettext.gettext;
 
 const MapType = {
@@ -77,6 +79,10 @@ const MapView = new Lang.Class({
         this._factory = Champlain.MapSourceFactory.dup_default();
         this.setMapType(MapType.STREET);
 
+        this.view.add_child(new Control.Zoom(this.view, {
+            x_align: Clutter.ActorAlign.END
+        }));
+        
         this._showUserLocation();
     },
 
@@ -186,5 +192,6 @@ const MapView = new Lang.Class({
     _onViewMoved: function() {
         this.emit('view-moved');
     }
+    
 });
 Signals.addSignalMethods(MapView.prototype);
