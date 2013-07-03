@@ -45,24 +45,36 @@ const Sidebar = new Lang.Class({
                                                  'reveal-button']);
         this._ui.revealButton.connect('clicked', this.toggle.bind(this));
         this._ui.revealer.show_all();
-        
-        this.actor = new Clutter.Actor({ layout_manager: new Clutter.BoxLayout({ spacing: 12 }),
-                                         y_expand: true,
-                                         x_align: Clutter.ActorAlign.END });
-        this.actor.hide();
-        
-        // now create actors
-        let buttonActor = new GtkClutter.Actor({ contents: this._ui.revealButton,
-                                                 x_align: Clutter.ActorAlign.END });
-        Utils.clearGtkClutterActorBg(buttonActor);
-        this.actor.add_child(buttonActor);
 
-        let revealerActor = new GtkClutter.Actor({ contents: this._ui.revealer,
-                                                   x_align: Clutter.ActorAlign.END,
-                                                   x_expand: true,
-                                                   y_expand: true });
-        this.actor.add_child(revealerActor);
+        this.actor = this._createActor();
+        this.actor.hide();
         this.conceal();
+    },
+
+    _createActor: function() {
+        let actor = new Clutter.Actor({
+            layout_manager: new Clutter.BoxLayout({ spacing: 12 }),
+            y_expand: true,
+            x_align: Clutter.ActorAlign.END
+        });
+
+        let buttonActor = new GtkClutter.Actor({
+            contents: this._ui.revealButton,
+            x_align: Clutter.ActorAlign.END
+        });
+        Utils.clearGtkClutterActorBg(buttonActor);
+
+        let revealerActor = new GtkClutter.Actor({
+            contents: this._ui.revealer,
+            x_align: Clutter.ActorAlign.END,
+            x_expand: true,
+            y_expand: true
+        });
+
+        actor.add_child(buttonActor);
+        actor.add_child(revealerActor);
+
+        return actor;
     },
 
     reveal: function() {
