@@ -58,10 +58,10 @@ const Geoclue = new Lang.Class({
     _findLocation: function() {
         GClue.ManagerProxy.new_for_bus(Gio.BusType.SESSION,
                                        Gio.DBusProxyFlags.NONE,
-                                        "org.freedesktop.GeoClue2",
-                                        "/org/freedesktop/GeoClue2/Manager",
-                                        null,
-                                        Lang.bind(this, this._onManagerProxyReady));
+                                       "org.freedesktop.GeoClue2",
+                                       "/org/freedesktop/GeoClue2/Manager",
+                                       null,
+                                       Lang.bind(this, this._onManagerProxyReady));
     },
 
     _onManagerProxyReady: function(sourceObject, res) {
@@ -119,7 +119,7 @@ const Geoclue = new Lang.Class({
 
     _onLocationProxyReady: function(sourceObject, res) {
         try {
-            this.location =  GClue.LocationProxy.new_for_bus_finish(res);
+            this.location = GClue.LocationProxy.new_for_bus_finish(res);
 
             let variant = GLib.Variant.new('ad', [this.location.latitude,
                                                   this.location.longitude,
@@ -132,6 +132,6 @@ const Geoclue = new Lang.Class({
         } catch (e) {
             log("Failed to find your location: " + e);
         }
-    },
+    }
 });
 Signals.addSignalMethods(Geoclue.prototype);

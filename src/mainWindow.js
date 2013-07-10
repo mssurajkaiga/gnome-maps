@@ -98,14 +98,14 @@ const MainWindow = new Lang.Class({
         if (Application.settings.get_boolean('window-maximized'))
             this.window.maximize();
 
-        this.window.connect('delete-event',
-                            Lang.bind(this, this._quit));
+        this.window.connect('delete-event', this._quit.bind(this));
         this.window.connect('configure-event',
-                            Lang.bind(this, this._onConfigureEvent));
+                            this._onConfigureEvent.bind(this));
         this.window.connect('window-state-event',
-                            Lang.bind(this, this._onWindowStateEvent));
+                            this._onWindowStateEvent.bind(this));
 
-        this._searchEntry.connect('activate', Lang.bind(this, this._onSearchActivate));
+        this._searchEntry.connect('activate',
+                                  this._onSearchActivate.bind(this));
 
         this.mapView = new MapView.MapView();
 
@@ -164,7 +164,7 @@ const MainWindow = new Lang.Class({
     },
 
     _onConfigureEvent: function(widget, event) {
-        if (this._configureId != 0) {
+        if (this._configureId !== 0) {
             Mainloop.source_remove(this._configureId);
             this._configureId = 0;
         }
@@ -195,7 +195,7 @@ const MainWindow = new Lang.Class({
 
     _quit: function() {
         // remove configure event handler if still there
-        if (this._configureId != 0) {
+        if (this._configureId !== 0) {
             Mainloop.source_remove(this._configureId);
             this._configureId = 0;
         }
@@ -218,27 +218,28 @@ const MainWindow = new Lang.Class({
     },
 
     _onAboutActivate: function() {
-        let aboutDialog = new Gtk.AboutDialog();
+        let aboutDialog = new Gtk.AboutDialog({
+            artists: [ 'Jakub Steiner <jimmac@gmail.com>',
+                       'Andreas Nilsson <nisses.mail@home.se>' ],
+            authors: [ 'Zeeshan Ali (Khattak) <zeeshanak@gnome.org>',
+                       'Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>' ],
+            translator_credits: _("translator-credits"),
+            program_name: _("Maps"),
+            comments: _("A map application for GNOME"),
+            copyright: 'Copyright ' + String.fromCharCode(0x00A9) +
+                ' 2011' + String.fromCharCode(0x2013) +
+                '2013 Red Hat, Inc.',
+            license_type: Gtk.License.GPL_2_0,
+            logo_icon_name: 'gnome-maps',
+            version: Config.PACKAGE_VERSION,
+            website: 'http://live.gnome.org/Maps',
+            wrap_license: true,
 
-        aboutDialog.artists = [ 'Jakub Steiner <jimmac@gmail.com>', 'Andreas Nilsson <nisses.mail@home.se>' ];
-        aboutDialog.authors = [ 'Zeeshan Ali (Khattak) <zeeshanak@gnome.org>',
-                                'Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>' ];
-        aboutDialog.translator_credits = _("translator-credits");
-        aboutDialog.program_name = _("Maps");
-        aboutDialog.comments = _("A map application for GNOME");
-        aboutDialog.copyright = 'Copyright ' + String.fromCharCode(0x00A9) + ' 2011' + String.fromCharCode(0x2013) + '2013 Red Hat, Inc.';
-        aboutDialog.license_type = Gtk.License.GPL_2_0;
-        aboutDialog.logo_icon_name = 'gnome-maps';
-        aboutDialog.version = Config.PACKAGE_VERSION;
-        aboutDialog.website = 'http://live.gnome.org/Maps';
-        aboutDialog.wrap_license = true;
-
-        aboutDialog.modal = true;
-        aboutDialog.transient_for = this.window;
-
-        aboutDialog.show();
-        aboutDialog.connect('response', function() {
-            aboutDialog.destroy();
+            modal: true,
+            transient_for: this.window
         });
+        aboutDialog.show();
+        aboutDialog.connect('response',
+                            aboutDialog.destroy.bind(aboutDialog));
     }
 });
