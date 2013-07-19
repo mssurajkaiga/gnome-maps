@@ -97,8 +97,8 @@ const MapView = new Lang.Class({
         this._sidebar.actor.hide();
         this._sidebar.conceal();
     },
-    
-    _route_request: function(toLocation) {
+
+    _routeRequest: function(toLocation) {
         let fromLocation = this._userLocation;
         let router = new osrm.Router();
 
@@ -171,7 +171,7 @@ const MapView = new Lang.Class({
 
                             let mapLocation = new MapLocation.MapLocation(location, this);
                             mapLocation.connect("route-request",
-                                                Lang.bind(this, this._route_request));
+                                                Lang.bind(this, this._routeRequest));
                             mapLocations.push(mapLocation);
                         }));
                     this._showLocations(mapLocations);
