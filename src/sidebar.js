@@ -31,6 +31,7 @@ const MapView = imports.mapView;
 
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
+const Signals = imports.signals;
 
 const Utils = imports.utils;
 const _ = imports.gettext.gettext;
@@ -45,7 +46,10 @@ const Sidebar = new Lang.Class({
                                                  'reveal-button']);
         this._ui.revealButton.connect('clicked', this.toggle.bind(this));
         this._ui.revealer.show_all();
-
+        this._ui.instructionsList.connect('row-activated', (function(box, row) {
+            this.emit('click-instruction', row.instruction);
+        }).bind(this));
+        
         this.actor = this._createActor();
         this.actor.hide();
         this.conceal();
@@ -78,12 +82,9 @@ const Sidebar = new Lang.Class({
     },
 
     addInstruction: function(instruction) {
-        this._ui.instructionsList.add(new Gtk.ListBoxRow({
-            child: new Gtk.Label({
-                label: instruction.toString()
-            })
+        this._ui.instructionsList.add(new InstructionRow(instruction, {
+            visible: true
         }));
-        log(" * " + instruction.toString());
     },
 
     reveal: function() {
@@ -107,3 +108,35 @@ const Sidebar = new Lang.Class({
         return this._ui.revealer.reveal_child;
     }
 });
+Signals.addSignalMethods(Sidebar.prototype);
+
+const InstructionRow = new Lang.Class({
+    Name: "InstructionRow",
+    Extends: Gtk.ListBoxRow,
+
+    _init: function(instruction, props) {
+        this.parent();
+        
+        this.instruction = instruction;
+
+        for(let key in props) 
+            this[key] = props[key];
+        
+        let box = new Gtk.Box({
+            visible: true,
+            can_focus: false
+        });
+        box.add(new Gtk.Image({
+            stock: "gtk-cdrom",
+            visible: true,
+            can_focus: false
+        }));
+        box.add(new Gtk.Label({
+            visible: true,
+            can_focus: false,
+            label: instruction.toString()
+        }));
+        this.add(box);
+    }
+});
+

@@ -66,6 +66,8 @@ const MapView = new Lang.Class({
         this.view.connect('notify::longitude', Lang.bind(this, this._onViewMoved));
 
         this._sidebar = new Sidebar.Sidebar();
+        this._sidebar.connect('click-instruction',
+                              this._gotoRouteNode.bind(this));
         this.view.add_child(this._sidebar.actor);
 
         this._markerLayer = new Champlain.MarkerLayer();
@@ -98,6 +100,11 @@ const MapView = new Lang.Class({
         this._sidebar.conceal();
     },
 
+    _gotoRouteNode: function(_, instruction) {
+        log(JSON.stringify(instruction));
+        this.view.go_to(instruction.point.lat,
+                        instruction.point.lng);
+    },
     _routeRequest: function(toLocation) {
         let fromLocation = this._userLocation;
         let router = new osrm.Router();
@@ -149,6 +156,7 @@ const MapView = new Lang.Class({
         }));
     },
 
+    
     setMapType: function(mapType) {
         let source = this._factory.create_cached_source(mapType);
         this.view.set_map_source(source);
