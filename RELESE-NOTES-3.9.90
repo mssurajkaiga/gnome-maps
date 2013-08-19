@@ -10,6 +10,9 @@ User visible changes since 3.9.5 are:
  * We now have both buttons in the map and key bindings for
    zooming in and out, in addition to using the mouse-wheel.
 
+Maps has also been updated to depend on the fresh GeoClue 1.99 
+release which acts as a DBus system service. 
+
 Maps is licensed under GNU GPLv2+.
 
 Dependencies (runtime):
