@@ -1,0 +1,23 @@
+We are pleased to announce the second release of Maps, a map application
+for GNOME.
+
+User visible changes since 3.9.5 are:
+ * Search results are now shown in a drop-down menu instead of
+   as markers on the map.
+ * We now draw our window decorations client-side, following
+   the trend of many other apps during this cycle.
+ * The user location button is no longer a toggle button.
+ * We now have both buttons in the map and key bindings for
+   zooming in and out, in addition to using the mouse-wheel.
+
+Maps is licensed under GNU GPLv2+.
+
+Dependencies (runtime):
+
+* gjs
+* geoclue
+* geocode-glib
+* champlain
+* champlain-gtk
+
+Home page: https://wiki.gnome.org/Maps/
