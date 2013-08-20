@@ -1,21 +1,40 @@
-We are pleased to announce the second release of Maps, a map application
-for GNOME.
+We are pleased to announce the second release of Maps, a map 
+application for GNOME.
 
-User visible changes since 3.9.5 are:
- * Search results are now shown in a drop-down menu instead of
+Changes since 3.9.5 are:
+ - Search results are now shown in a drop-down menu instead of
    as markers on the map.
- * We now draw our window decorations client-side, following
+ - We now draw our window decorations client-side, following
    the trend of many other apps during this cycle.
- * The user location button is no longer a toggle button.
- * We now have both buttons in the map and key bindings for
+ - The user location button is no longer a toggle button.
+ - We now have both buttons in the map and key bindings for
    zooming in and out, in addition to using the mouse-wheel.
+ - We depend on the fresh GeoClue 1.99 release, which acts
+   as a DBus system service.
+ - Added/updated/fixed translations:
+   - Chinese simplified
+   - Danish
 
-Maps has also been updated to depend on the fresh GeoClue 1.99 
-release which acts as a DBus system service. 
+All contributors to this release:
 
-Maps is licensed under GNU GPLv2+.
+Andrea Veri <av@gnome.org>
+Jonas Danielsson <jonas@threetimestwo.org>
+Kenneth Nielsen <k.nielsen81@gmail.com>
+Kris Thomsen <lakristho@gmail.com>
+Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+tuhaihe <1132321739qq@gmail.com>
+Yosef Or Boczko <yoseforb@gmail.com>
+Zeeshan Ali (Khattak) <zeeshanak@gnome.org>
 
-Dependencies (runtime):
+-------------------------
+
+What is Maps?
+=============
+
+Maps is a map application for GNOME 3. 
+
+Dependencies
+============
 
 * gjs
 * geoclue
@@ -23,4 +42,12 @@ Dependencies (runtime):
 * champlain
 * champlain-gtk
 
-Home page: https://wiki.gnome.org/Maps/
+Home page
+=========
+
+https://wiki.gnome.org/Maps/
+
+Download
+========
+Source tarball:
+sha256 checksum:
