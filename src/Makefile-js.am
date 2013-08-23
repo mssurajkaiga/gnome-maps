@@ -7,6 +7,7 @@ dist_js_DATA = \
     mapView.js \
     path.js \
 	route.js \
+	routeService.js \
     sidebar.js \
     settings.js \
     utils.js \
