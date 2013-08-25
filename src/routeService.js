@@ -21,8 +21,10 @@
  */
 
 const Soup = imports.gi.Soup;
+const Champlain = imports.gi.Champlain;
 
 const Lang = imports.lang;
+const Utils = imports.utils;
 
 const Route = imports.route;
 const Polyline = imports.polyline;
@@ -63,3 +65,93 @@ const RouteService = new Lang.Class({
         }).bind(this));
     }
 });
+
+const GraphHopper = new Lang.Class({
+    Name: 'GraphHopper',
+    Extends: RouteService,
+
+    _init: function(url) {
+        this._baseURL = url || "http://graphhopper.com/routing/api/route?";
+        this._locale = 'en_US';
+        this.parent();
+    },
+
+    _vehicle: function(transportationType) {
+        switch(transportationType) {
+            case Transportation.CAR:     return 'CAR';
+            case Transportation.BIKE:    return 'BIKE';
+            case Transportation.FOOT:    return 'FOOT';
+            case Transportation.TRANSIT: return '';
+        }
+        return null;
+    },
+
+    _buildURL: function(viaPoints, transportation) {
+        let points = viaPoints.map(function(p) { 
+            return [p.latitude, p.longitude].join(','); 
+        });
+
+        let query = new HTTP.Query({
+            type: 'json',
+            vehicle: this._vehicle(transportation),
+            locale: this._locale,
+            point: points
+        });
+        let url = this._baseURL + query.toString();
+        Utils.debug("Sending route request to: " + url);
+        return url;
+    },
+
+    _parseResult: function(result) {
+        let route = JSON.parse(result).route,
+            directions = this._createDirections(route.instructions.indications),
+            coordinates = route.instructions.latLngs.map(function([lat, lng]) {
+                return new Champlain.Coordinate({ latitude: lat,
+                                                  longitude: lng });
+            }),
+            instructions = this._createInstructions(directions,
+                                                    coordinates,
+                                                    route.instructions.distances,
+                                                    route.instructions.descriptions),
+            bbox = new Champlain.BoundingBox();
+
+        // GH does lonlat-order and Champlain latlon-order
+        bbox.extend(route.bbox[1], route.bbox[0]);
+        bbox.extend(route.bbox[3], route.bbox[2]);
+
+        return new Route.Route({ coordinates: Polyline.decode(route.coordinates),
+                                 instructions: instructions,
+                                 distance: route.distance,
+                                 time: route.time,
+                                 bbox: bbox });
+    },
+
+    _createInstructions: function(directions, coordinates, distances, descriptions) {
+        let result = directions.map(function(direction, i) {
+            return new Route.Instruction({ coordinate: coordinates[i],
+                                           type: Route.InstructionType.NORMAL,
+                                           direction: direction,
+                                           distance: distances[i],
+                                           description: descriptions[i] });
+        });
+        result[0].type = Route.InstructionType.START;
+        result[directions.length - 1].type = Route.InstructionType.END;
+
+        return result;
+    },
+    _createDirections: function(indications) {
+        return indications.map(function(indication) {
+            switch(indication) {
+                case -3: return Route.Direction.SHARP_LEFT;
+                case -2: return Route.Direction.LEFT;
+                case -1: return Route.Direction.SLIGHT_LEFT;
+                case  0: return Route.Direction.CONTINUE;
+                case  1: return Route.Direction.SLIGHT_RIGHT;
+                case  2: return Route.Direction.RIGHT;
+                case  3: return Route.Direction.SHARP_RIGHT;
+            };
+            return null;
+        });
+    }
+});
+
