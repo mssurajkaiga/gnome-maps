@@ -138,6 +138,10 @@ function isArray(obj) {
     return Object.prototype.toString.call(obj) === '[object Array]';
 }
 
+function isDefined(obj) {
+    return (typeof obj !== 'undefined' && obj !== null);
+}
+
 function load_icon(icon, size, loadCompleteCallback) {
     if (icon instanceof Gio.FileIcon) {
         _load_file_icon(icon, loadCompleteCallback);
