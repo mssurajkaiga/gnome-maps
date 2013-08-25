@@ -1,6 +1,7 @@
 jsdir = $(pkgdatadir)/js/
 dist_js_DATA = \
     application.js \
+	http.js \
     main.js \
     mainWindow.js \
     mapLocation.js \
