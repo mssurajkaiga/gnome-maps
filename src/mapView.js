@@ -73,6 +73,10 @@ const MapView = new Lang.Class({
         // Don't show sidebar until it has something in it
         //this.view.add_child(this._sidebar.actor);
 
+        this._routeLayer = new Champlain.PathLayer();
+        this._routeLayer.set_stroke_width(2.0);
+        this.view.add_layer(this._routeLayer);
+
         this._markerLayer = new Champlain.MarkerLayer();
         this._markerLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
         this.view.add_layer(this._markerLayer);
@@ -171,6 +175,13 @@ const MapView = new Lang.Class({
     showNGotoLocation: function(location) {
         let mapLocation = this.showLocation(location);
         mapLocation.goTo(true);
+    },
+
+    showRoute: function(route) {
+        route.coordinates.forEach(function(coordinate) {
+            this._routeLayer.add_node(coordinate);
+        }, this);
+        this.view.ensure_visible(route.bbox, true);
     },
 
     _onViewMoved: function() {
