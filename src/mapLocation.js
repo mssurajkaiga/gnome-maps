@@ -23,6 +23,8 @@
 const Clutter = imports.gi.Clutter;
 const Champlain = imports.gi.Champlain;
 const Geocode = imports.gi.GeocodeGlib;
+const GtkClutter = imports.gi.GtkClutter;
+const Gtk = imports.gi.Gtk;
 
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
@@ -80,10 +82,37 @@ const MapLocation = new Lang.Class({
     },
 
     show: function(layer) {
-        let marker = new Champlain.Label({ text: this.description });
-        marker.set_location(this.latitude, this.longitude);
-        layer.add_marker(marker);
-        Utils.debug("Added marker at " + this.latitude + ", " + this.longitude);
+        let image = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/bubble.svg");
+        let bubble = new Champlain.CustomMarker();
+        bubble.add_child(image);
+        bubble.set_location(this.latitude, this.longitude);
+        bubble.connect('notify::width',
+                       bubble.set_translation.bind(bubble,
+                                                   -(Math.floor(bubble.get_width() / 2)),
+                                                   -bubble.get_height(),
+                                                   0));
+
+        let ui = Utils.getUIObject('map-location', [ 'map-location',
+                                                     'name',
+                                                     'to-here-button' ]);
+        ui.name.label = this.description;
+        ui.toHereButton.connect("clicked",
+                                this.emit.bind(this,
+                                               'route-request',
+                                               { to: this.getCoordinate() }));
+        let gtkActor = new GtkClutter.Actor({ contents: ui.mapLocation,
+                                              margin_top: 5,
+                                              margin_left: 5});
+        Utils.clearGtkClutterActorBg(gtkActor);
+        bubble.add_child (gtkActor);
+
+        layer.add_marker (bubble);
+        Utils.debug("Added marker at " + this.latitude + ", " + this.longitude);   
+    },
+
+    getCoordinate: function() {
+        return new Champlain.Coordinate({ latitude: this.latitude,
+                                          longitude: this.longitude });
     },
 
     showNGoTo: function(animate, layer) {

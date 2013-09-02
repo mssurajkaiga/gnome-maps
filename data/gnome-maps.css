@@ -52,3 +52,7 @@
 #zoom-out-button:insensitive {
     background-image: url('zoom-out-insensitive.png');
 }
+
+.map-location > GtkLabel {
+    color: #D0D0D0;
+}

@@ -41,6 +41,7 @@ const Path = imports.path;
 const MapLocation = imports.mapLocation;
 const UserLocation = imports.userLocation;
 const Geoclue = imports.geoclue;
+const RouteService = imports.routeService;
 const _ = imports.gettext.gettext;
 
 const MapType = {
@@ -51,6 +52,7 @@ const MapType = {
 };
 
 const MapMinZoom = 2;
+const DefaultTransportation = RouteService.Transportation.CAR;
 
 const MapView = new Lang.Class({
     Name: 'MapView',
@@ -102,6 +104,8 @@ const MapView = new Lang.Class({
         this._updateUserLocation();
         this.geoclue.connect("location-changed",
                              this._updateUserLocation.bind(this));
+
+        this._routeService = new RouteService.GraphHopper();
     },
 
     setMapType: function(mapType) {
@@ -166,7 +170,7 @@ const MapView = new Lang.Class({
     showLocation: function(location) {
         this._markerLayer.remove_all();
         let mapLocation = new MapLocation.MapLocation(location, this);
-
+        mapLocation.connect('route-request', this._onRouteRequest.bind(this));
         mapLocation.show(this._markerLayer);
 
         return mapLocation;
@@ -177,7 +181,16 @@ const MapView = new Lang.Class({
         mapLocation.goTo(true);
     },
 
+    _onRouteRequest: function(location) {
+        let from = this._userLocation.getCoordinate(),
+            to   = location.getCoordinate();
+        this._routeService.getRoute([from, to],
+                                    DefaultTransportation,
+                                    this.showRoute.bind(this));
+    },
+
     showRoute: function(route) {
+        this._routeLayer.remove_all();
         route.coordinates.forEach(function(coordinate) {
             this._routeLayer.add_node(coordinate);
         }, this);
