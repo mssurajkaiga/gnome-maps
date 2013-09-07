@@ -1,3 +1,6 @@
+# -*- indent-tabs-mode: nil; tab-width: 4 -*-
+# vim: set et ts=4 sw=4: */
+
 NULL =
 
 public_icons_themes =				\
@@ -17,6 +20,9 @@ imagesdir = $(datadir)/gnome-maps/pixmaps
 images_DATA =                                   \
 	bubble.svg				\
 	pin.svg					\
+    route-car-symbolic.svg         \
+    route-transit-symbolic.svg     \
+    route-pedestrian-symbolic.svg  \
         $(NULL)
 
 noinst_DATA =					\

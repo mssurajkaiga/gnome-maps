@@ -7,10 +7,27 @@
     <file preprocess="xml-stripblanks">search-popup.ui</file>
     <file preprocess="xml-stripblanks">context-menu.ui</file>
     <file preprocess="xml-stripblanks">map-location.ui</file>
+    <file preprocess="xml-stripblanks">sidebar.ui</file>
+    <file preprocess="xml-stripblanks">instruction-row.ui</file>
+    <file preprocess="xml-stripblanks"
+          alias="route-pedestrian-symbolic">../data/icons/route-pedestrian-symbolic.svg</file>
+    <file preprocess="xml-stripblanks"
+          alias="route-bike-symbolic">../data/icons/route-transit-symbolic.svg</file>
+    <file preprocess="xml-stripblanks"
+          alias="route-car-symbolic">../data/icons/route-car-symbolic.svg</file>
     <file alias="application.css">../data/gnome-maps.css</file>
     <file alias="zoom-in.png">../data/media/zoom-in.png</file>
     <file alias="zoom-out.png">../data/media/zoom-out.png</file>
     <file alias="zoom-in-insensitive.png">../data/media/zoom-in-insensitive.png</file>
     <file alias="zoom-out-insensitive.png">../data/media/zoom-out-insensitive.png</file>
+    <file alias="direction-left">../data/icons/direction-left.png</file>
+    <file alias="direction-right">../data/icons/direction-right.png</file>
+    <file alias="direction-roundabout">../data/icons/direction-roundabout.png</file>
+    <file alias="direction-sharpleft">../data/icons/direction-sharpleft.png</file>
+    <file alias="direction-sharpright">../data/icons/direction-sharpright.png</file>
+    <file alias="direction-slightleft">../data/icons/direction-slightleft.png</file>
+    <file alias="direction-slightright">../data/icons/direction-slightright.png</file>
+    <file alias="direction-continue">../data/icons/direction-continue.png</file>
+    <file alias="direction-uturn">../data/icons/direction-uturn.png</file>
   </gresource>
 </gresources>

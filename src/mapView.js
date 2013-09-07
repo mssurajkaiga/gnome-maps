@@ -34,11 +34,11 @@ const Mainloop = imports.mainloop;
 const Signals = imports.signals;
 
 const Application = imports.application;
-const Sidebar = imports.sidebar;
 const Utils = imports.utils;
 const Path = imports.path;
 const MapLocation = imports.mapLocation;
 const UserLocation = imports.userLocation;
+const TurnLocation = imports.turnLocation;
 const Geoclue = imports.geoclue;
 const RouteService = imports.routeService;
 const _ = imports.gettext.gettext;
@@ -69,10 +69,6 @@ const MapView = new Lang.Class({
 
         this.view.connect('notify::latitude', this._onViewMoved.bind(this));
         this.view.connect('notify::longitude', this._onViewMoved.bind(this));
-
-        this._sidebar = new Sidebar.Sidebar(this);
-        // Don't show sidebar until it has something in it
-        //this.view.add_child(this._sidebar.actor);
 
         this._routeLayer = new Champlain.PathLayer();
         this._routeLayer.set_stroke_width(2.0);
@@ -182,7 +178,18 @@ const MapView = new Lang.Class({
             to   = location.getCoordinate();
         this._routeService.getRoute([from, to],
                                     DefaultTransportation,
-                                    this.showRoute.bind(this));
+                                    this.emit.bind(this, 'got-route'));
+    },
+
+    showTurnPoint: function(coordinate) {
+        let location = new TurnLocation.TurnLocation(coordinate,
+                                                     this);
+        location.goTo(true);
+        location.show(this._markerLayer);
+    },
+
+    clearRoutes: function() {
+        this._routeLayer.remove_all();
     },
 
     showRoute: function(route) {

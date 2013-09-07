@@ -22,6 +22,7 @@
 
 const Clutter = imports.gi.Clutter;
 const Gdk = imports.gi.Gdk;
+const GdkPixbuf = imports.gi.GdkPixbuf;
 const GLib = imports.gi.GLib;
 const Gtk = imports.gi.Gtk;
 const Champlain = imports.gi.Champlain;
@@ -30,71 +31,141 @@ const MapView = imports.mapView;
 
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
+const Signals = imports.signals;
 
+const Path = imports.path;
+const Route = imports.route;
 const Utils = imports.utils;
 const _ = imports.gettext.gettext;
 
+const isRTL = Gtk.Widget.get_default_direction() === Gtk.TextDirection.RTL;
+
+const Icon = {
+    prev: isRTL ? 'go-previous-rtl-symbolic' : 'go-previous-symbolic',
+    next: isRTL ? 'go-next-rtl-symbolic'     : 'go-next-symbolic'
+};
+
 const Sidebar = new Lang.Class({
     Name: 'Sidebar',
+    Extends: Gtk.Revealer,
 
-    _init: function(mapView) {
-        this._mapView = mapView;
-        this.actor = new Clutter.Actor({ layout_manager: new Clutter.BoxLayout({ spacing: 12 }),
-                                         y_expand: true,
-                                         x_align: Clutter.ActorAlign.END });
-
-        let isRtl = (Gtk.Widget.get_default_direction() == Gtk.TextDirection.RTL);
-        let prevIconName = isRtl ? 'go-previous-rtl-symbolic' : 'go-previous-symbolic';
-        let nextIconName = isRtl ? 'go-next-rtl-symbolic' : 'go-next-symbolic';
-
-        // create the button
-        let revealImage = new Gtk.Image ({ icon_name: prevIconName,
-                                           icon_size: Gtk.IconSize.MENU });
-        let revealButton = new Gtk.Button({ child: revealImage,
-                                            valign: Gtk.Align.CENTER });
-        revealButton.get_style_context().add_class('osd');
-        revealButton.show();
-
-        // then the sidebar itself, packed into the revealer
-        let grid = new Gtk.Grid({ vexpand: true,
-                                  hexpand: true,
-                                  margin_top: 32,
-                                  margin_left: 32,
-                                  margin_right: 32,
-                                  row_spacing: 15,
-                                  orientation: Gtk.Orientation.VERTICAL,
-                                  valign: Gtk.Align.FILL });
-
-        let container = new Gtk.Frame({ child: grid,
-                                        shadow_type: Gtk.ShadowType.IN,
-                                        width_request: 200 });
-        container.get_style_context().add_class('maps-sidebar');
-
-        let revealer = new Gtk.Revealer({ child: container,
-                                         reveal_child: false,
-                                         transition_type: Gtk.RevealerTransitionType.CROSSFADE });
-        revealer.show_all();
-
-        revealButton.connect('clicked', (function() {
-            if (revealer.reveal_child) {
-                revealer.reveal_child = false;
-                revealButton.symbolic_icon_name = prevIconName;
-            } else {
-                revealer.reveal_child = true;
-                revealButton.symbolic_icon_name = nextIconName;
-            }
+    _init: function() {
+        this.parent({ can_focus: false,
+                      visible: false,
+                      transition_type: 2,
+                      halign: Gtk.Align.END });
+        this._ui = Utils.getUIObject('sidebar', [ 'sidebar',
+                                                  'instruction-list',
+                                                  'reveal-button',
+                                                  'reveal-image' ]);
+        this.revealButton = this._ui.revealButton;
+        this.revealButton.connect('clicked', this.toggle.bind(this));
+        this._ui.instructionList.connect('row-activated', (function(_, row) {
+            this.emit('instruction-selected', row.instruction);
         }).bind(this));
 
-        // now create actors
-        let buttonActor = new GtkClutter.Actor({ contents: revealButton,
-                                                 x_align: Clutter.ActorAlign.END });
-        Utils.clearGtkClutterActorBg(buttonActor);
-        this.actor.add_child(buttonActor);
+        this.add(this._ui.sidebar);
+        this.conceal();
+    },
 
-        let revealerActor = new GtkClutter.Actor({ contents: revealer,
-                                                   x_align: Clutter.ActorAlign.END,
-                                                   x_expand: true,
-                                                   y_expand: true });
-        this.actor.add_child(revealerActor);
+    // _createActor: function() {
+    //     let actor = new Clutter.Actor({
+    //         layout_manager: new Clutter.BoxLayout({ spacing: 12 }),
+    //         y_expand: true,
+    //         x_align: Clutter.ActorAlign.END
+    //     });
+
+    //     let buttonActor = new GtkClutter.Actor({
+    //         contents: this._ui.revealButton,
+    //         x_align: Clutter.ActorAlign.END
+    //     });
+    //     Utils.clearGtkClutterActorBg(buttonActor);
+
+    //     let revealerActor = new GtkClutter.Actor({
+    //         contents: this,
+    //         x_align: Clutter.ActorAlign.END,
+    //         x_expand: true,
+    //         y_expand: true
+    //     });
+
+    //     actor.add_child(buttonActor);
+    //     actor.add_child(revealerActor);
+
+    //     return actor;
+    // },
+
+    addInstructions: function(instructions) {
+        this.clearInstructions();
+        instructions.forEach(this._addInstruction.bind(this));
+    },
+    _addInstruction: function(instruction) {
+        this._ui.instructionList.add(new InstructionRow(instruction));
+    },
+
+    clearInstructions: function() {
+        let listBox = this._ui.instructionList;
+        listBox.forall(listBox.remove.bind(listBox));
+    },
+
+    reveal: function() {
+        this.reveal_child = true;
+        this._ui.revealImage.icon_name = Icon.next;
+    },
+
+    conceal: function() {
+        this.reveal_child = false;
+        this._ui.revealImage.icon_name = Icon.prev;
+    },
+
+    toggle: function() {
+        if(this.reveal_child)
+            this.conceal();
+        else
+            this.reveal();
+    },
+
+    close: function() {
+        this.conceal();
+        this.hide();
+    },
+
+    open: function() {
+        this.show();
+        this.reveal();
     }
 });
+Signals.addSignalMethods(Sidebar.prototype);
+
+const InstructionRow = new Lang.Class({
+    Name: "InstructionRow",
+    Extends: Gtk.ListBoxRow,
+
+    _init: function(instruction) {
+        this.parent();
+
+        this.instruction = instruction;
+        this.visible = true;
+        let ui = Utils.getUIObject('instruction-row', ['instruction-box',
+                                                       'direction-image',
+                                                       'instruction-label']);
+        ui.instructionLabel.label = instruction.description;
+        ui.directionImage.resource = directionToResource(instruction.direction);
+        this.add(ui.instructionBox);
+    }
+});
+
+function directionToResource(direction) {
+    let dir = Route.Direction;
+    switch(direction) {
+    case dir.LEFT:         return '/org/gnome/maps/direction-left';
+    case dir.SHARP_LEFT:   return '/org/gnome/maps/direction-sharpleft';
+    case dir.SLIGHT_LEFT:  return '/org/gnome/maps/direction-slightleft';
+    case dir.RIGHT:        return '/org/gnome/maps/direction-right';
+    case dir.SHARP_RIGHT:  return '/org/gnome/maps/direction-sharpright';
+    case dir.SLIGHT_RIGHT: return '/org/gnome/maps/direction-slightright';
+    case dir.CONTINUE:     return '/org/gnome/maps/direction-continue';
+    case dir.U_TURN:       return '/org/gnome/maps/direction-uturn';
+    case dir.ROUNDABOUT:   return '/org/gnome/maps/direction-roundabout';
+    default:               return "";
+    }
+}

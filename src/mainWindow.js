@@ -38,6 +38,7 @@ const ContextMenu = imports.contextMenu;
 const Utils = imports.utils;
 const Config = imports.config;
 const ZoomControl = imports.zoomControl;
+const Sidebar = imports.sidebar;
 
 const _ = imports.gettext.gettext;
 
@@ -69,10 +70,12 @@ const MainWindow = new Lang.Class({
         this.mapView.gotoUserLocation(false);
         this._searchPopup = new SearchPopup.SearchPopup(10);
         this._contextMenu = new ContextMenu.ContextMenu(this.mapView);
+        this._sidebar = new Sidebar.Sidebar(this);
 
         ui.windowContent.add(this.mapView);
         ui.windowContent.add_overlay(this._searchPopup);
         ui.windowContent.add_overlay(new ZoomControl.ZoomControl(this.mapView));
+        ui.windowContent.add_overlay(this._sidebar);
 
         this._initSearchWidgets();
         this._initActions();
@@ -120,6 +123,9 @@ const MainWindow = new Lang.Class({
             }, {
                 properties: { name: 'goto-user-location' },
                 signalHandlers: { activate: this._onGotoUserLocationActivate }
+            }, {
+                properties: { name: 'route-mode-close' },
+                signalHandlers: { activate: this._onRouteModeCloseActivate }
             }
         ], this);
     },
@@ -132,6 +138,19 @@ const MainWindow = new Lang.Class({
                             this._onWindowStateEvent.bind(this));
         this.window.connect('key-press-event',
                             this._onKeyPressEvent.bind(this));
+
+        this._sidebar.connect('instruction-selected', (function(sidebar, instruction) {
+            if(instruction && instruction.coordinate)
+                this.mapView.showTurnPoint(instruction.coordinate);
+            else
+                log("No coordinate for this turn instruction");
+        }).bind(this));
+
+        this.mapView.connect('got-route', (function(mapView, route) {
+            this._sidebar.open();
+            mapView.showRoute(route);
+            this._sidebar.addInstructions(route.instructions);
+        }).bind(this));
 
         this._searchEntry.connect('activate',
                                   this._onSearchActivate.bind(this));
@@ -208,6 +227,11 @@ const MainWindow = new Lang.Class({
         }
 
         return false;
+    },
+
+    _onRouteModeCloseActivate: function() {
+        this._sidebar.close();
+        this.mapView.clearRoutes();
     },
 
     _onSearchPopupSelected: function(widget, iter) {

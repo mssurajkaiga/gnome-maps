@@ -12,6 +12,7 @@ dist_js_DATA = \
 	routeService.js \
     sidebar.js \
     settings.js \
+    turnLocation.js \
     utils.js \
     userLocation.js \
     geoclue.js \
