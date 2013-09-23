@@ -61,35 +61,28 @@ const MainWindow = new Lang.Class({
         let ui = Utils.getUIObject('main-window', [ 'app-window',
                                                     'window-content',
                                                     'search-entry' ]);
-        let grid = ui.windowContent;
         this._searchEntry = ui.searchEntry;
         this.window = ui.appWindow;
         this.window.application = app;
 
-        this._mapOverlay = new Gtk.Overlay({ visible: true });
-        this.mapView = new MapView.MapView(this._mapOverlay);
-        this._mapOverlay.add(this.mapView);
-        this._mapOverlay.add_overlay(new ZoomControl.ZoomControl(this.mapView));
-
+        this.mapView = new MapView.MapView();
         this.mapView.gotoUserLocation(false);
-
+        this._searchPopup = new SearchPopup.SearchPopup(10);
         this._contextMenu = new ContextMenu.ContextMenu(this.mapView);
+
+        ui.windowContent.add(this.mapView);
+        ui.windowContent.add_overlay(this._searchPopup);
+        ui.windowContent.add_overlay(new ZoomControl.ZoomControl(this.mapView));
 
         this._initSearchWidgets();
         this._initActions();
         this._initSignals();
         this._restoreWindowGeometry();
 
-        this._mapOverlay.add_overlay(this._searchPopup);
-
-        grid.add(this._mapOverlay);
-
-        grid.show_all();
+        ui.windowContent.show_all();
     },
 
     _initSearchWidgets: function() {
-        this._searchPopup = new SearchPopup.SearchPopup(10);
-
         let model = new Gtk.ListStore();
         model.set_column_types([GdkPixbuf.Pixbuf,
                                 GObject.TYPE_STRING,

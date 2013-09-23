@@ -57,7 +57,7 @@ const MapView = new Lang.Class({
     Name: 'MapView',
     Extends: GtkChamplain.Embed,
 
-    _init: function(overlay) {
+    _init: function() {
         this.parent();
 
         this.actor = this.get_view();
