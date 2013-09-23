@@ -37,6 +37,7 @@ const SearchPopup = imports.searchPopup;
 const ContextMenu = imports.contextMenu;
 const Utils = imports.utils;
 const Config = imports.config;
+const ZoomControl = imports.zoomControl;
 
 const _ = imports.gettext.gettext;
 
@@ -68,6 +69,7 @@ const MainWindow = new Lang.Class({
         this._mapOverlay = new Gtk.Overlay({ visible: true });
         this.mapView = new MapView.MapView(this._mapOverlay);
         this._mapOverlay.add(this.mapView);
+        this._mapOverlay.add_overlay(new ZoomControl.ZoomControl(this.mapView));
 
         this.mapView.gotoUserLocation(false);
 
