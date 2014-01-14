@@ -1,3 +1,30 @@
+3.11.2 - Jan 14, 2014
+=====================
+
+Changes since 3.11.2:
+
+- Set saner minimum zoom level on the map view.
+- Added/updated/fixed translations:
+  - Czech
+  - Malayalam
+  - Kannada
+  - Slovak
+  - Friulian
+  - German
+  - Esperanto
+
+All contributors to this release:
+
+Marek Černocký <marek@manet.cz>
+Jonas Danielsson <jonas@threetimestwo.org>
+Balasankar C <c.balasankar@gmail.com>
+Shankar Prasad <prasad.mvs@gmail.com>
+Dušan Kazik <prescott66@gmail.com>
+Fabio Tomat <f.t.public@gmail.com>
+Benjamin Steinwender <b@stbe.at>
+Jonas Danielsson <jonas@threetimestwo.org>
+Matthew Chisholm <mat.eo416@gmail.com>
+
 3.11.2 - Nov 19, 2013
 =====================
 
